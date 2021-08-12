@@ -13,6 +13,7 @@ public class LogMessage : MonoBehaviour
     [HideInInspector]public enum closeStatus { backToBigMap, close};
     private closeStatus status;
     private Transform canvasTransform;
+    private TMPro.TextMeshProUGUI instructionHolder;
 
     private void Awake()
     {
@@ -39,6 +40,10 @@ public class LogMessage : MonoBehaviour
     {
         this.status = status;
         isPrintintComplete = false;
+        instructionHolder = Instantiate(database.instruction).GetComponent<TMPro.TextMeshProUGUI>();
+        instructionHolder.text = null;
+        instructionHolder.transform.SetParent(canvasTransform);
+
         StartCoroutine("PrintLog", status);
     }
 
@@ -52,6 +57,11 @@ public class LogMessage : MonoBehaviour
         textHolder.Clear();
         sr.sprite = null;
         enabled = false;
+        if (instructionHolder != null)
+        {
+            Destroy(instructionHolder.gameObject);
+            instructionHolder = null;
+        }
     }
 
     public void DeleteLog()
@@ -83,7 +93,7 @@ public class LogMessage : MonoBehaviour
     {
         if (isPrintintComplete == true)
         {
-            if (Input.GetKeyDown(KeyCode.Z))
+            if (Input.GetKeyDown(KeyCode.X))
             {
                 if (status == closeStatus.backToBigMap)
                 {
@@ -116,7 +126,9 @@ public class LogMessage : MonoBehaviour
             if (textHolder.Count > 6 && textHolder.Count != 7)
             {
                 sr.sprite = log2;
+                instructionHolder.text = "[Z] to continue";
                 yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Z));
+                instructionHolder.text = null;
                 for (int j = 0; j < textHolder.Count; j++)
                 {
                     Destroy(textHolder[j].gameObject);
@@ -135,6 +147,7 @@ public class LogMessage : MonoBehaviour
         isPrintintComplete = true;
         if (status == closeStatus.backToBigMap)
         {
+            instructionHolder.text = "[X] to close";
             enabled = true;
         }
     }

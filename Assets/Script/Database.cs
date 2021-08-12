@@ -194,7 +194,7 @@ public class Database : MonoBehaviour
                 }
                 break;
         }
-        return new Character(15, 0, 2, 5, 6, 4, Character.Element.none, 0, 0);
+        return new Character(15, 0, 2, 5, 6, 4, Character.Element.none, 1, 0);
     }
 
     private bool isFulfilledPossibility(int denominator)

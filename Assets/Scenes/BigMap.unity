@@ -609,6 +609,7 @@ MonoBehaviour:
   dice: {fileID: 1615299234756255913, guid: 71799c2ca764dbf4f943ff65a4bbebca, type: 3}
   characterSprites:
   - {fileID: 7146561053583597744, guid: e269368df50279246ab6d82705bc6e0b, type: 3}
+  - {fileID: 8197582801116832140, guid: c24f52b7e53b83546a9297ad2b1d667c, type: 3}
   allyDetails: []
   enemyDetails: []
   waitingEnemies: []

@@ -25,7 +25,6 @@ public class TargetSelection : MonoBehaviour
         }
     }
 
-    // Can Add Vector2 Array To Act As Pivot Point, But No Need For Now.
     private Vector2 getPosition(bool isAlly, int index)
     {
         previousIndex = index;

@@ -10,23 +10,30 @@ public class Dice : MonoBehaviour
     [HideInInspector]public Database database;
     public bool isDicingComplete;
     public int diceNumber;
-    [HideInInspector]public TMPro.TextMeshProUGUI textHolder;
+    [HideInInspector] public TMPro.TextMeshProUGUI textHolder, instructionHolder;
+    private Transform canvasTransform;
 
     private void Awake()
     {
+        canvasTransform = GameObject.Find("Canvas").transform;
         sr = GetComponent<SpriteRenderer>();
         isDicingComplete = true;
+        originalPos = transform.position;
+    }
+
+    private void Update()
+    {
+        transform.Rotate(0, 0, 30 * Time.deltaTime);
+        transform.position = new Vector3(originalPos.x, originalPos.y + Mathf.Cos(Time.time * 20) * 0.5f, 0);
     }
 
     public void ThrowDice(int min, int max)
     {
         textHolder = Instantiate(database.instruction, transform.position, Quaternion.identity).GetComponent<TMPro.TextMeshProUGUI>();
-        textHolder.transform.SetParent(GameObject.Find("Canvas").transform);
+        textHolder.transform.SetParent(canvasTransform);
         textHolder.text = null;
-        textHolder.color = Color.black;
         textHolder.fontSize = 4;
         textHolder.alignment = TMPro.TextAlignmentOptions.Midline;
-        originalPos = transform.position;
         StartCoroutine(DiceRandom(min, max));
     }
 
@@ -40,14 +47,11 @@ public class Dice : MonoBehaviour
         database.logMessage.PrintLatestMessage();
         database.logMessage.AddMessage("Waiting...");
         database.logMessage.PrintLatestMessage();
-        int throwTime = Random.Range(25, 45);
         int diceValue = Random.Range(min, max);
         float waitTime = 0.4f;
-        for (int i = 0; i < throwTime; i++)
+        for (int i = 0; i < 20; i++)
         {
-            transform.localRotation = Quaternion.Euler(0, 0, Mathf.Sin(Time.time * 50) * 180);
-            transform.position = new Vector3 (originalPos.x, originalPos.y + Mathf.Cos(Time.time * 100) * 0.2f, 0);
-            sr.sprite = diceImages[Random.Range(0, 5)];
+            sr.sprite = diceImages[i % 6];
             yield return new WaitForSeconds(0.07f + waitTime);
             waitTime = waitTime * 0.7f;
         }
@@ -57,14 +61,20 @@ public class Dice : MonoBehaviour
         }
         else
         {
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+            textHolder.transform.rotation = transform.localRotation;
+            textHolder.transform.position = transform.position;
             sr.sprite = diceImages[6];
             textHolder.text = (diceValue + 1).ToString();
         }
         database.logMessage.AddMessage("Value: " + (diceValue + 1) + "!");
         database.logMessage.PrintLatestMessage();
+        enabled = false;
         database.logMessage.SetImage(1);
+        instructionHolder = Instantiate(database.instruction).GetComponent<TMPro.TextMeshProUGUI>();
+        instructionHolder.transform.SetParent(canvasTransform);
+        instructionHolder.text = "[Z] to start battle";
         yield return new WaitUntil(() => Input.GetKeyDown(KeyCode.Z));
+        Destroy(instructionHolder.gameObject);
         database.logMessage.DeleteLog();
         database.logMessage.Hide();
         database.isHandling = false;
