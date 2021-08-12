@@ -36,7 +36,7 @@ public class SceneCharacter : MonoBehaviour
 
             HPIndicatorHolder = Instantiate(characterStats.textPrefab).GetComponent<TMPro.TextMeshProUGUI>();
             HPIndicatorHolder.transform.position = transform.position;
-            HPIndicatorHolder.transform.position += new Vector3(1, -1.6f, 0);
+            HPIndicatorHolder.transform.position += new Vector3(1, -2.1f, 0);
             HPIndicatorHolder.color = Color.black;
             HPIndicatorHolder.transform.SetParent(GameObject.Find("Canvas").transform);
             if (characterStats.isAlly == true)
@@ -110,13 +110,6 @@ public class SceneCharacter : MonoBehaviour
                             transform.position = new Vector2(-8 + progress, 4);
                     }
                 }
-                else
-                {
-                    transform.position = new Vector2(-8, 4);
-                    progress = 0;
-                    myRenderer.material.shader = shaderGUIText;
-                    myRenderer.color = Color.grey;
-                }
             }
             else
             {
@@ -131,20 +124,12 @@ public class SceneCharacter : MonoBehaviour
                         characterStats.isDead = true;
                         myRenderer.material.shader = shaderGUIText;
                         myRenderer.color = Color.grey;
+                        barCharacter.myRenderer.material.shader = shaderGUIText;
+                        barCharacter.myRenderer.material.shader = shaderGUIText;
+                        barCharacter.progress = 0;
+                        barCharacter.transform.position = new Vector2(-8, 4);
 
-                        int deathNumber = 0;
-                        for (int i = 0; i < database.allyDetails.Count; i++)
-                        {
-                            Character tempCharacter = database.allyDetails[i].GetComponent<Character>();
-                            if (tempCharacter.isDead == true)
-                            {
-                                deathNumber++;
-                            }
-                            tempCharacter.sceneCharacter.transform.position = new Vector2(-2 + i * -2, -2);
-                            TMPro.TextMeshProUGUI tempHPIndicator = tempCharacter.sceneCharacter.GetComponent<SceneCharacter>().HPIndicatorHolder;
-                            tempHPIndicator.transform.position = tempCharacter.sceneCharacter.transform.position;
-                            tempHPIndicator.transform.position += new Vector3(1, -1.6f, 0);
-                        }
+                        int deathNumber = RepositionCharacter(true);
                         if (deathNumber == database.allyDetails.Count)
                         {
                             for(int i = 0; i < database.allyDetails.Count; i++)
@@ -167,8 +152,11 @@ public class SceneCharacter : MonoBehaviour
 
                             database.currentWave = 0;
                             database.waitingEnemies.Clear();
-                            database.transform.parent.GetComponent<CrossSceneManagement>().LoadScene("BigMap");
-                            database.isHandling = true;
+                            database.logMessage.DeleteLog();
+                            database.logMessage.AddMessage("[" + System.DateTime.UtcNow.ToString("HH:mm:ss") + "] <Battle Ended!>");
+                            database.logMessage.AddMessage("All allies died!");
+                            database.logMessage.AddMessage("<Game Over!>");
+                            database.logMessage.Print(LogMessage.closeStatus.backToBigMap);
                         }
                     }
                     else
@@ -179,24 +167,9 @@ public class SceneCharacter : MonoBehaviour
                         database.logMessage.AddMessage("You gained " + reward + " gold!");
 
                         database.enemyDetails.Remove(characterStats.gameObject);
-                        database.enemyDetails.Add(characterStats.gameObject);
                         characterStats.isDead = true;
-                        myRenderer.material.shader = shaderGUIText;
-                        myRenderer.color = Color.grey;
 
-                        int deathNumber = 0;
-                        for (int i = 0; i < database.enemyDetails.Count; i++)
-                        {
-                            Character tempCharacter = database.enemyDetails[i].GetComponent<Character>();
-                            if (tempCharacter.isDead == true)
-                            {
-                                deathNumber++;
-                            }
-                            tempCharacter.sceneCharacter.transform.position = new Vector2(2 + i * 2, -2);
-                            TMPro.TextMeshProUGUI tempHPIndicator = tempCharacter.sceneCharacter.GetComponent<SceneCharacter>().HPIndicatorHolder;
-                            tempHPIndicator.transform.position = tempCharacter.sceneCharacter.transform.position;
-                            tempHPIndicator.transform.position += new Vector3(1, -1.6f, 0);
-                        }
+                        int deathNumber = RepositionCharacter(false);
                         if (deathNumber == database.enemyDetails.Count)
                         {
                             database.isHandling = true;
@@ -248,6 +221,9 @@ public class SceneCharacter : MonoBehaviour
                                 database.moveMap.StartLerping();
                             }
                         }
+                        Destroy(characterStats.gameObject);
+                        Destroy(HPIndicatorHolder.gameObject);
+                        Destroy(gameObject);
                     }
 
                 }
@@ -261,13 +237,45 @@ public class SceneCharacter : MonoBehaviour
                     {
                         HPIndicatorHolder.text = "HP" + characterStats.currentHP;
                     }
-                    if (characterStats.currentHP <= 0)
-                    {
-                        HPIndicatorHolder.text = "Dead";
-                    }
                 }
             }
         }
+    }
+
+    public int RepositionCharacter(bool isAlly)
+    {
+        int deathNumber = 0;
+        if (isAlly == true)
+        {
+            for (int i = 0; i < database.allyDetails.Count; i++)
+            {
+                Character tempCharacter = database.allyDetails[i].GetComponent<Character>();
+                if (tempCharacter.isDead == true)
+                {
+                    deathNumber++;
+                }
+                tempCharacter.sceneCharacter.transform.position = new Vector2(-2 + i * -2.5f, -2);
+                TMPro.TextMeshProUGUI tempHPIndicator = tempCharacter.sceneCharacter.GetComponent<SceneCharacter>().HPIndicatorHolder;
+                tempHPIndicator.transform.position = tempCharacter.sceneCharacter.transform.position;
+                tempHPIndicator.transform.position += new Vector3(1, -2.1f, 0);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < database.enemyDetails.Count; i++)
+            {
+                Character tempCharacter = database.enemyDetails[i].GetComponent<Character>();
+                if (tempCharacter.isDead == true)
+                {
+                    deathNumber++;
+                }
+                tempCharacter.sceneCharacter.transform.position = new Vector2(2 + i * 2.5f, -2);
+                TMPro.TextMeshProUGUI tempHPIndicator = tempCharacter.sceneCharacter.GetComponent<SceneCharacter>().HPIndicatorHolder;
+                tempHPIndicator.transform.position = tempCharacter.sceneCharacter.transform.position;
+                tempHPIndicator.transform.position += new Vector3(1, -2.1f, 0);
+            }
+        }
+        return deathNumber;
     }
 
     public void isHit()

@@ -42,10 +42,10 @@ public class Dice : MonoBehaviour
     {
         isDicingComplete = false;
         database.isHandling = true;
-        database.logMessage.PrintLatestMessage();
+        database.logMessage.PrintPreviousMessages();
         database.logMessage.AddMessage("<Start Throwing Dice!>");
         database.logMessage.PrintLatestMessage();
-        database.logMessage.AddMessage("Waiting...");
+        database.logMessage.AddMessage("...");
         database.logMessage.PrintLatestMessage();
         int diceValue = Random.Range(min, max);
         float waitTime = 0.4f;
@@ -66,7 +66,7 @@ public class Dice : MonoBehaviour
             sr.sprite = diceImages[6];
             textHolder.text = (diceValue + 1).ToString();
         }
-        database.logMessage.AddMessage("Value: " + (diceValue + 1) + "!");
+        database.logMessage.AddMessage("Value is " + (diceValue + 1) + "!");
         database.logMessage.PrintLatestMessage();
         enabled = false;
         database.logMessage.SetImage(1);

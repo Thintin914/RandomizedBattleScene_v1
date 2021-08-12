@@ -9,7 +9,7 @@ public class LogMessage : MonoBehaviour
     [SerializeField]private List<TMPro.TextMeshProUGUI> textHolder;
     public Sprite log1, log2;
     private SpriteRenderer sr;
-    public bool isPrintintComplete = true;
+    public bool isPrintintComplete = true, isHiding = true;
     [HideInInspector]public enum closeStatus { backToBigMap, close};
     private closeStatus status;
     private Transform canvasTransform;
@@ -40,6 +40,7 @@ public class LogMessage : MonoBehaviour
     {
         this.status = status;
         isPrintintComplete = false;
+        isHiding = false;
         instructionHolder = Instantiate(database.instruction).GetComponent<TMPro.TextMeshProUGUI>();
         instructionHolder.text = null;
         instructionHolder.transform.SetParent(canvasTransform);
@@ -57,6 +58,7 @@ public class LogMessage : MonoBehaviour
         textHolder.Clear();
         sr.sprite = null;
         enabled = false;
+        isHiding = true;
         if (instructionHolder != null)
         {
             Destroy(instructionHolder.gameObject);
@@ -77,6 +79,7 @@ public class LogMessage : MonoBehaviour
 
     public void PrintLatestMessage()
     {
+        isHiding = false;
         sr.sprite = log1;
         if (message.Count > 0)
         {
@@ -89,6 +92,21 @@ public class LogMessage : MonoBehaviour
         }
     }
 
+    public void PrintPreviousMessages()
+    {
+        isHiding = false;
+        sr.sprite = log1;
+        for (int i = 0; i < message.Count; i++)
+        {
+            textHolder.Add(Instantiate(database.instruction, transform.position, Quaternion.identity).GetComponent<TMPro.TextMeshProUGUI>());
+            textHolder[textHolder.Count - 1].transform.SetParent(canvasTransform);
+            textHolder[textHolder.Count - 1].fontSize = 1;
+            textHolder[textHolder.Count - 1].transform.position += new Vector3(2.4f, 1.4f + (textHolder.Count - 1) * -0.3f, 0);
+            textHolder[textHolder.Count - 1].color = new Color32(250, 200, 55, 255);
+            textHolder[textHolder.Count - 1].text = message[i];
+        }
+    }
+
     private void Update()
     {
         if (isPrintintComplete == true)
@@ -97,10 +115,10 @@ public class LogMessage : MonoBehaviour
             {
                 if (status == closeStatus.backToBigMap)
                 {
-                    isPrintintComplete = false;
+                    Hide();
                     database.transform.parent.GetComponent<CrossSceneManagement>().LoadScene("BigMap");
                 }
-                else
+                else if (status == closeStatus.close)
                 {
                     Hide();
                 }
@@ -145,10 +163,8 @@ public class LogMessage : MonoBehaviour
         sr.sprite = log2;
         database.isHandling = false;
         isPrintintComplete = true;
-        if (status == closeStatus.backToBigMap)
-        {
-            instructionHolder.text = "[X] to close";
-            enabled = true;
-        }
+
+        instructionHolder.text = "[X] to close";
+        enabled = true;
     }
 }

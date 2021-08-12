@@ -46,7 +46,7 @@ public class Database : MonoBehaviour
     {
         for (int i = 0; i < allyDetails.Count; i++)
         {
-            GameObject cloner = Instantiate(sceneCharacter, new Vector2(-2 + i * -2, -2), Quaternion.identity);
+            GameObject cloner = Instantiate(sceneCharacter, new Vector2(-2 + i * -2.5f, -2), Quaternion.identity);
             SceneCharacter temp = cloner.GetComponent<SceneCharacter>();
             temp.characterStats = allyDetails[i].GetComponent<Character>();
             temp.database = this;
@@ -78,7 +78,7 @@ public class Database : MonoBehaviour
         }
         for (int i = 0; i < enemyDetails.Count; i++)
         {
-            GameObject cloner = Instantiate(sceneCharacter, new Vector2(2 + i * 2, -2), Quaternion.identity);
+            GameObject cloner = Instantiate(sceneCharacter, new Vector2(2 + i * 2.5f, -2), Quaternion.identity);
             SceneCharacter temp = cloner.GetComponent<SceneCharacter>();
             temp.characterStats = enemyDetails[i].GetComponent<Character>();
             temp.database = this;
@@ -139,7 +139,7 @@ public class Database : MonoBehaviour
     {
         coin = 0;
 
-        AddCharacterToAllyList(1, 100, 20, 5, 40, 15, Character.Element.wildfire, 0);
+        AddCharacterToAllyList(1, 100, 20, 5, 12, 15, Character.Element.wildfire, 0);
         AddCharacterToAllyList(1, 100, 10, 5, 1, 15, Character.Element.water, 0);
         AddCharacterToAllyList(1, 100, 10, 5, 1, 15, Character.Element.earth, 0);
 
@@ -188,18 +188,18 @@ public class Database : MonoBehaviour
         switch (level)
         {
             case 0:
-                if (isFulfilledPossibility(10))
+                if (isFulfilledPossibility(2))
                 {
-                    return new Character(15, 0, 2, 5, 6, 4, Character.Element.none, 0, 0);
+                    return new Character(45, 0, 2, 5, 6, 4, Character.Element.none, 2, 0);
                 }
                 break;
         }
-        return new Character(15, 0, 2, 5, 6, 4, Character.Element.none, 1, 0);
+        return new Character(15, 0, 2, 5, 10, 4, Character.Element.none, 1, 0);
     }
 
     private bool isFulfilledPossibility(int denominator)
     {
-        if (Random.Range(1, denominator) == 1)
+        if (Random.Range(1, denominator + 1) == 1)
         {
             return true;
         }
@@ -215,8 +215,9 @@ public class Database : MonoBehaviour
 
         logMessage = Instantiate(log).GetComponent<LogMessage>();
         logMessage.DeleteLog();
-        logMessage.AddMessage("[" + System.DateTime.UtcNow.ToString("HH:mm:ss") + "] <Battle Started!>");
         logMessage.database = this;
+        logMessage.AddMessage("[" + System.DateTime.UtcNow.ToString("HH:mm:ss") + "] <Battle Started!>");
+        logMessage.AddMessage("<Determining Total Wave!>");
 
         currentWave = 0;
         coinGainInOneRound = 0;
